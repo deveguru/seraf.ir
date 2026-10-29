@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مستندات API سراف</title>
+<meta name="description" content="مستندات کامل وب‌سرویس بهینه‌سازی تصویر سراف (Seraf Image API v1)">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css">
+<style>
+:root{--bg:#07080f;--bg2:#0d0f1c;--text:#eef0fb;--muted:#9aa1bd;--line:rgba(255,255,255,.09);--glass:rgba(255,255,255,.045);--pink:#ff3d7f;--violet:#a855f7;--cyan:#22d3ee;--green:#34d399;--amber:#fbbf24;--red:#fb7185;--grad:linear-gradient(120deg,#ff3d7f,#a855f7 50%,#22d3ee)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1000px 600px at 80% -10%,#1a1240,transparent 60%),var(--bg);color:var(--text);font:15.5px/1.85 Vazirmatn,Tahoma,"Segoe UI",sans-serif}
+a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:36px;max-width:1240px;margin:0 auto;padding:0 20px}
+aside{position:sticky;top:0;height:100vh;overflow:auto;padding:28px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;margin-bottom:6px}
+.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ver{display:inline-block;font-size:12px;padding:2px 10px;border-radius:99px;background:rgba(52,211,153,.15);color:var(--green);font-weight:700}
+nav ol{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-direction:column;gap:2px}
+nav a{display:block;padding:7px 12px;border-radius:10px;color:var(--muted);font-size:14.5px}
+nav a:hover{background:var(--glass);color:var(--text);text-decoration:none}
+nav .ep{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;direction:ltr;text-align:right}
+main{padding:28px 0 80px;min-width:0}
+.hero{padding:34px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(120deg,rgba(255,61,127,.16),rgba(139,92,246,.14),rgba(34,211,238,.1));margin-bottom:26px}
+.hero h1{margin:0 0 8px;font-size:34px;line-height:1.4}
+.hero h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;color:#c3c8de}
+.base{display:inline-flex;gap:10px;align-items:center;margin-top:16px;padding:8px 14px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);direction:ltr;font-family:ui-monospace,Consolas,monospace}
+section{padding:26px;margin:18px 0;border-radius:22px;background:var(--glass);border:1px solid var(--line)}
+h2{margin:0 0 12px;font-size:22px}h3{margin:22px 0 8px;font-size:17px}
+p{margin:8px 0}
+.muted{color:var(--muted)}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;background:rgba(255,255,255,.07);padding:1px 7px;border-radius:6px;direction:ltr;unicode-bidi:embed}
+pre{direction:ltr;text-align:left;background:#0b0d18;border:1px solid var(--line);border-radius:14px;padding:16px 18px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:#dfe4f7;margin:10px 0}
+pre code{background:none;padding:0}
+.s{color:#fda4af}.k{color:#c4b5fd}.c{color:#6b7394}
+.ep-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;direction:ltr;justify-content:flex-end;margin-bottom:6px}
+.m{font:700 12.5px ui-monospace,Consolas,monospace;padding:4px 10px;border-radius:8px}
+.get{background:rgba(34,211,238,.15);color:var(--cyan)}.post{background:rgba(255,61,127,.18);color:var(--pink)}
+.path{font:700 16px ui-monospace,Consolas,monospace}
+.tag{font-size:12px;padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--muted)}
+.tag.auth{background:rgba(251,191,36,.14);color:var(--amber)}.tag.pub{background:rgba(52,211,153,.14);color:var(--green)}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14.5px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:13px}
+td code{white-space:nowrap}
+.note{padding:12px 16px;border-radius:14px;margin:12px 0;border:1px solid var(--line);background:rgba(34,211,238,.07)}
+.note.warn{background:rgba(251,191,36,.08)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{padding:16px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.card b{display:block;font-size:22px}
+.tabs{display:flex;gap:6px;margin-top:10px;direction:ltr;justify-content:flex-end}
+.tabs button{font:inherit;font-size:13px;font-weight:700;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.tabs button.on{background:rgba(255,255,255,.09);color:var(--text)}
+footer{color:var(--muted);font-size:13.5px;text-align:center;margin-top:30px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}aside{position:static;height:auto;padding-bottom:0}nav ol{flex-direction:row;flex-wrap:wrap}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand"><b>Seraf</b> API</div>
+  <span class="ver">v1</span>
+  <nav><ol>
+    <li><a href="#intro">معرفی</a></li>
+    <li><a href="#quick">شروع سریع</a></li>
+    <li><a href="#auth">احراز هویت</a></li>
+    <li><a href="#billing">هزینه و پرداخت</a></li>
+    <li><a href="#limits">محدودیت‌ها</a></li>
+    <li><a class="ep" href="#status">GET /v1/status</a></li>
+    <li><a class="ep" href="#plans">GET /v1/plans</a></li>
+    <li><a class="ep" href="#account">GET /v1/account</a></li>
+    <li><a class="ep" href="#usage">GET /v1/usage</a></li>
+    <li><a class="ep" href="#optimize">POST /v1/optimize</a></li>
+    <li><a class="ep" href="#download">GET /v1/download/{token}</a></li>
+    <li><a class="ep" href="#guest">POST /v1/guest/optimize</a></li>
+    <li><a href="#errors">کدهای خطا</a></li>
+    <li><a href="#examples">نمونه‌کد</a></li>
+    <li><a href="#wordpress">افزونهٔ وردپرس</a></li>
+    <li><a href="#privacy">حریم خصوصی</a></li>
+    <li><a href="#tips">توصیه‌ها</a></li>
+  </ol></nav>
+</aside>
+
+<main>
+  <div class="hero">
+    <h1>مستندات وب‌سرویس <span>سراف</span></h1>
+    <p>فشرده‌سازی، تغییر اندازه و تبدیل تصاویر به WebP و AVIF روی سرورهای سراف — با یک درخواست ساده.</p>
+    <div class="base"><span class="m post">BASE</span> https://seraf.ir/api/v1</div>
+  </div>
+
+  <section id="intro">
+    <h2>معرفی</h2>
+    <div class="grid">
+      <div class="card"><span class="muted">ورودی</span><b>JPEG · PNG · WebP · GIF · AVIF</b></div>
+      <div class="card"><span class="muted">خروجی</span><b>original · jpeg · png · webp · avif</b></div>
+      <div class="card"><span class="muted">موتور</span><b>Imagick / GD</b></div>
+    </div>
+    <p>همهٔ پاسخ‌ها JSON با کدگذاری UTF-8 هستند، مگر وقتی خود فایل تصویر را درخواست کنید.</p>
+<pre><code><span class="c">// success</span>
+{ "ok": true,  "data": { ... } }
+<span class="c">// error</span>
+{ "ok": false, "error": { "code": "...", "message": "..." } }</code></pre>
+  </section>
+
+  <section id="quick">
+    <h2>شروع سریع</h2>
+    <ol>
+      <li>در <a href="https://seraf.ir/panel/">پنل سراف</a> با کد پیامکی یا نام کاربری و رمز وارد شوید.</li>
+      <li>کیف پول را شارژ کنید یا یک پلن بخرید.</li>
+      <li>از بخش «کلیدهای API» یک کلید بسازید (<code>srf_…</code>) — فقط یک‌بار نمایش داده می‌شود.</li>
+      <li>اولین درخواست را بفرستید:</li>
+    </ol>
+<pre><code>curl -X POST https://seraf.ir/api/v1/optimize \
+  -H <span class="s">"Authorization: Bearer srf_YOUR_KEY"</span> \
+  -F <span class="s">"image=@photo.jpg"</span> -F <span class="s">"format=webp"</span> -F <span class="s">"quality=80"</span></code></pre>
+  </section>
+
+  <section id="auth">
+    <h2>احراز هویت</h2>
+    <p>کلید را در یکی از هدرهای زیر ارسال کنید:</p>
+<pre><code>Authorization: Bearer srf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+X-API-Key: srf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+    <table>
+      <tr><th>هدر اختیاری</th><th>کاربرد</th></tr>
+      <tr><td><code>X-Seraf-Client</code></td><td>نوع کلاینت، مثلاً <code>wordpress/1.0.0</code> (در گزارش مصرف نمایش داده می‌شود)</td></tr>
+      <tr><td><code>X-Seraf-Site</code></td><td>دامنهٔ سایت شما؛ برای کلیدهای محدود به دامنه لازم است</td></tr>
+    </table>
+    <div class="note warn">کلید را هرگز در JavaScript سمت مرورگر قرار ندهید. کلید لو رفته را از پنل باطل کنید. سراف فقط هش SHA-256 کلید را نگه می‌دارد.</div>
+  </section>
+
+  <section id="billing">
+    <h2>هزینه و پرداخت</h2>
+    <ul>
+      <li>واحد پول تومان است و هر تصویر بهینه‌شده یک واحد مصرف حساب می‌شود.</li>
+      <li>ابتدا سهمیهٔ پلنی که زودتر منقضی می‌شود و سپس «پرداخت به ازای مصرف» از کیف پول.</li>
+      <li>اگر تصویر کوچک‌تر نشود (<code>skipped</code>) یا پردازش خطا بدهد، هزینه برگشت داده می‌شود.</li>
+      <li>بدون سهمیه و موجودی: <code>402 insufficient_balance</code>.</li>
+    </ul>
+  </section>
+
+  <section id="limits">
+    <h2>محدودیت‌ها</h2>
+    <table>
+      <tr><th>مورد</th><th>مقدار</th><th>خطا</th></tr>
+      <tr><td>درخواست در دقیقه</td><td>بر اساس پلن (بدون پلن معمولاً ۲۰)</td><td><code>429 rate_limited</code></td></tr>
+      <tr><td>حجم فایل</td><td>بر اساس پلن (بدون پلن معمولاً ۱۰ مگابایت)</td><td><code>413 file_too_large</code></td></tr>
+      <tr><td>ابعاد تصویر</td><td>۴۰ مگاپیکسل</td><td><code>413 image_too_large</code></td></tr>
+      <tr><td>پردازش همزمان سرور</td><td>محدود؛ در شلوغی صبر کنید</td><td><code>503 server_busy</code></td></tr>
+    </table>
+    <p>هدرهای <code>X-RateLimit-Limit</code>، <code>X-RateLimit-Remaining</code> و در صورت خطا <code>Retry-After</code> (ثانیه) ارسال می‌شوند. مقادیر دقیق حساب شما در <a href="#account">/v1/account</a> است.</p>
+  </section>
+
+  <section id="status">
+    <div class="ep-head"><span class="tag pub">عمومی</span><span class="path">/v1/status</span><span class="m get">GET</span></div>
+    <p>وضعیت سرویس و فرمت‌های قابل تولید.</p>
+<pre><code>{ "ok": true, "data": { "version": "1.2.0", "engine": "imagick",
+  "output_formats": ["jpeg","png","webp","avif"], "maintenance": false,
+  "time": "2026-10-30T10:00:00+00:00" } }</code></pre>
+  </section>
+
+  <section id="plans">
+    <div class="ep-head"><span class="tag pub">عمومی</span><span class="path">/v1/plans</span><span class="m get">GET</span></div>
+    <p>پلن‌های فعال، قیمت پرداخت به ازای مصرف و محدودیت‌های نسخهٔ رایگان.</p>
+<pre><code>{ "ok": true, "data": {
+  "plans": [ { "id": 2, "name_en": "Business", "name_fa": "بیزینس", "price": 249000,
+               "duration_days": 30, "image_quota": 10000, "max_file_mb": 25,
+               "rate_per_minute": 60, "max_api_keys": 10, "featured": true } ],
+  "pay_as_you_go": { "price_per_image": 50, "max_file_mb": 10, "rate_per_minute": 20 },
+  "guest": { "enabled": true, "max_batch": 10, "max_file_mb": 5, "per_hour": 100 },
+  "formats": ["jpeg","png","webp","avif"], "currency": "IRT" } }</code></pre>
+  </section>
+
+  <section id="account">
+    <div class="ep-head"><span class="tag auth">کلید لازم</span><span class="path">/v1/account</span><span class="m get">GET</span></div>
+    <p>موجودی کیف پول، پلن فعال و محدودیت‌ها.</p>
+<pre><code>{ "ok": true, "data": {
+  "user": { "id": 12, "mobile": "09121234567", "name": "Ali" },
+  "wallet": { "balance": 150000, "currency": "IRT" },
+  "plan": { "name": "Business", "quota_left": 8430, "expires_at": "2026-11-28T09:00:00+00:00" },
+  "pricing": { "pay_as_you_go_per_image": 50 },
+  "limits": { "requests_per_minute": 60, "max_file_mb": 25, "max_concurrent_jobs": 3 },
+  "topup_url": "https://seraf.ir/panel/wallet" } }</code></pre>
+  </section>
+
+  <section id="usage">
+    <div class="ep-head"><span class="tag auth">کلید لازم</span><span class="path">/v1/usage?limit=50</span><span class="m get">GET</span></div>
+    <p>آخرین پردازش‌ها (حداکثر ۲۰۰ ردیف). فیلدها: <code>id</code>، <code>client</code>، <code>site</code>، <code>filename</code>، <code>in_format</code>، <code>out_format</code>، <code>in_bytes</code>، <code>out_bytes</code>، <code>charged</code>، <code>charge_source</code>، <code>status</code>، <code>error</code>، <code>created_at</code>.</p>
+  </section>
+
+  <section id="optimize">
+    <div class="ep-head"><span class="tag auth">کلید لازم</span><span class="path">/v1/optimize</span><span class="m post">POST</span></div>
+    <p>بهینه‌سازی یک تصویر. ورودی <code>multipart/form-data</code> برای فایل، یا JSON/فرم برای <code>url</code>.</p>
+    <table>
+      <tr><th>پارامتر</th><th>اجباری</th><th>توضیح</th></tr>
+      <tr><td><code>image</code></td><td>*</td><td>فایل تصویر (JPEG/PNG/WebP/GIF/AVIF)</td></tr>
+      <tr><td><code>url</code></td><td>*</td><td>یا آدرس عمومی http(s) تصویر</td></tr>
+      <tr><td><code>quality</code></td><td>خیر</td><td>۱ تا ۱۰۰ — پیش‌فرض ۸۲</td></tr>
+      <tr><td><code>format</code></td><td>خیر</td><td><code>original</code> (پیش‌فرض)، <code>jpeg</code>، <code>png</code>، <code>webp</code>، <code>avif</code></td></tr>
+      <tr><td><code>max_width</code> / <code>max_height</code></td><td>خیر</td><td>حداکثر ابعاد به پیکسل؛ فقط کوچک می‌کند و نسبت حفظ می‌شود</td></tr>
+      <tr><td><code>keep_metadata</code></td><td>خیر</td><td><code>true</code> برای حفظ EXIF (پیش‌فرض حذف؛ پروفایل رنگ حفظ می‌شود)</td></tr>
+      <tr><td><code>response</code></td><td>خیر</td><td><code>json</code> (پیش‌فرض) یا <code>binary</code></td></tr>
+    </table>
+    <p class="muted">* یکی از <code>image</code> یا <code>url</code> الزامی است.</p>
+    <h3>پاسخ JSON</h3>
+<pre><code>{ "ok": true, "data": {
+  "id": 1024, "status": "ok",
+  "input":  { "format": "jpeg", "bytes": 482113 },
+  "output": { "format": "webp", "mime": "image/webp", "bytes": 98314, "width": 1600, "height": 1067 },
+  "saved_bytes": 383799, "saved_percent": 79.61,
+  "charged": 50, "charge_source": "wallet", "balance": 99950,
+  "download_url": "https://seraf.ir/api/v1/download/AbC123...",
+  "expires_at": "2026-10-30T10:10:00+00:00" } }</code></pre>
+    <h3>پاسخ باینری (<code>response=binary</code>)</h3>
+    <p>بدنه خودِ تصویر است و آمار در هدرها — توصیه‌شده برای افزونه‌ها و پردازش انبوه:</p>
+<pre><code>Content-Type:          image/webp
+X-Seraf-Status:        ok | skipped
+X-Seraf-Input-Bytes:   482113
+X-Seraf-Output-Bytes:  98314
+X-Seraf-Output-Format: webp
+X-Seraf-Width:         1600
+X-Seraf-Height:        1067
+X-Seraf-Charged:       50
+X-Seraf-Balance:       99950</code></pre>
+    <table>
+      <tr><th>status</th><th>معنی</th></tr>
+      <tr><td><code>ok</code></td><td>تصویر کوچک‌تر، تبدیل یا تغییر اندازه داده شد</td></tr>
+      <tr><td><code>skipped</code></td><td>از قبل بهینه بود؛ همان فایل اصلی برمی‌گردد و هزینه‌ای ندارد</td></tr>
+    </table>
+  </section>
+
+  <section id="download">
+    <div class="ep-head"><span class="tag">توکن محرمانه</span><span class="path">/v1/download/{token}</span><span class="m get">GET</span></div>
+    <p>دریافت فایل در حالت JSON. لینک <b>یک‌بارمصرف</b> است و حداکثر ۱۰ دقیقه اعتبار دارد؛ پس از اولین دانلود فایل از سرور حذف می‌شود و درخواست دوباره <code>404</code> می‌گیرد.</p>
+  </section>
+
+  <section id="guest">
+    <div class="ep-head"><span class="tag pub">عمومی</span><span class="path">/v1/guest/optimize</span><span class="m post">POST</span></div>
+    <p>بهینه‌ساز رایگان صفحهٔ اصلی برای کاربران مهمان؛ برای استفادهٔ برنامه‌نویسی از <a href="#optimize">/v1/optimize</a> استفاده کنید.</p>
+    <ul>
+      <li>ورودی: <code>image</code> به‌همراه <code>quality</code>، <code>format</code>، <code>max_width</code></li>
+      <li>هدر اختیاری <code>X-Seraf-Guest</code>: شناسهٔ تصادفی مرورگر</li>
+      <li>سقف: ۵ مگابایت برای هر فایل، ۱۰۰ تصویر در ساعت برای هر مرورگر (هر IP تا ۱۰ برابر)</li>
+      <li>پاسخ: باینری با هدرهای <code>X-Seraf-*</code>؛ عبور از سقف: <code>429 guest_limit</code></li>
+    </ul>
+  </section>
+
+  <section id="errors">
+    <h2>کدهای خطا</h2>
+    <table>
+      <tr><th>HTTP</th><th>code</th><th>معنی</th></tr>
+      <tr><td>400</td><td><code>upload_failed</code></td><td>آپلود فایل ناقص بود</td></tr>
+      <tr><td>401</td><td><code>unauthorized</code></td><td>کلید ارسال نشده، نامعتبر یا باطل شده</td></tr>
+      <tr><td>402</td><td><code>insufficient_balance</code></td><td>موجودی و سهمیه کافی نیست (<code>balance</code>، <code>price_per_image</code>، <code>topup_url</code>)</td></tr>
+      <tr><td>403</td><td><code>account_blocked</code></td><td>حساب غیرفعال شده</td></tr>
+      <tr><td>403</td><td><code>domain_not_allowed</code></td><td>کلید به دامنهٔ دیگری محدود شده</td></tr>
+      <tr><td>404</td><td><code>not_found</code></td><td>سرویس یا لینک دانلود وجود ندارد یا منقضی شده</td></tr>
+      <tr><td>405</td><td><code>method_not_allowed</code></td><td>متد HTTP اشتباه</td></tr>
+      <tr><td>413</td><td><code>file_too_large</code></td><td>حجم فایل بیش از سقف پلن</td></tr>
+      <tr><td>413</td><td><code>image_too_large</code></td><td>ابعاد بیش از ۴۰ مگاپیکسل</td></tr>
+      <tr><td>415</td><td><code>invalid_image</code></td><td>فایل تصویر معتبر نیست</td></tr>
+      <tr><td>415</td><td><code>unsupported_type</code></td><td>نوع تصویر پشتیبانی نمی‌شود</td></tr>
+      <tr><td>422</td><td><code>no_input</code></td><td>نه image ارسال شده نه url</td></tr>
+      <tr><td>422</td><td><code>invalid_url</code></td><td>آدرس نامعتبر یا خصوصی است</td></tr>
+      <tr><td>422</td><td><code>fetch_failed</code></td><td>دانلود تصویر از url ممکن نشد</td></tr>
+      <tr><td>422</td><td><code>invalid_format</code></td><td>مقدار format نامعتبر</td></tr>
+      <tr><td>422</td><td><code>format_unavailable</code></td><td>این فرمت روی سرور فعال نیست</td></tr>
+      <tr><td>422</td><td><code>decode_failed</code></td><td>تصویر قابل خواندن نیست</td></tr>
+      <tr><td>422</td><td><code>processing_failed</code></td><td>پردازش ناموفق (هزینه برگشت داده شد)</td></tr>
+      <tr><td>429</td><td><code>rate_limited</code></td><td>درخواست بیش از حد مجاز در دقیقه</td></tr>
+      <tr><td>429</td><td><code>guest_limit</code></td><td>سقف ساعتی نسخهٔ رایگان</td></tr>
+      <tr><td>500</td><td><code>server_error</code></td><td>خطای داخلی</td></tr>
+      <tr><td>503</td><td><code>server_busy</code></td><td>سرور مشغول؛ پس از Retry-After تکرار کنید</td></tr>
+      <tr><td>503</td><td><code>maintenance</code></td><td>در حال به‌روزرسانی</td></tr>
+    </table>
+<pre><code>HTTP/1.1 429 Too Many Requests
+Retry-After: 12
+{ "ok": false, "error": { "code": "rate_limited", "message": "Too many requests, slow down", "retry_after": 12 } }</code></pre>
+  </section>
+
+  <section id="examples">
+    <h2>نمونه‌کد</h2>
+    <div class="tabs" role="tablist">
+      <button class="on" data-t="curl">cURL</button><button data-t="php">PHP</button><button data-t="node">Node.js</button><button data-t="py">Python</button>
+    </div>
+<pre data-c="curl"><code><span class="c"># JSON + download link</span>
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H <span class="s">"Authorization: Bearer $SERAF_KEY"</span> \
+  -F <span class="s">"image=@photo.jpg"</span> -F <span class="s">"quality=80"</span> -F <span class="s">"format=webp"</span>
+
+<span class="c"># binary: save the optimized file directly</span>
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H <span class="s">"Authorization: Bearer $SERAF_KEY"</span> \
+  -F <span class="s">"image=@photo.png"</span> -F <span class="s">"response=binary"</span> -D headers.txt -o photo.min.png
+
+<span class="c"># by URL</span>
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H <span class="s">"Authorization: Bearer $SERAF_KEY"</span> -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"url":"https://example.com/banner.jpg","format":"avif","max_width":1920}'</span></code></pre>
+<pre data-c="php" hidden><code><span class="k">$ch</span> = curl_init(<span class="s">'https://seraf.ir/api/v1/optimize'</span>);
+curl_setopt_array(<span class="k">$ch</span>, [
+    CURLOPT_POST           =&gt; true,
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_HTTPHEADER     =&gt; [<span class="s">'Authorization: Bearer '</span> . getenv(<span class="s">'SERAF_KEY'</span>)],
+    CURLOPT_POSTFIELDS     =&gt; [
+        <span class="s">'image'</span>    =&gt; new CURLFile(<span class="s">'photo.jpg'</span>),
+        <span class="s">'quality'</span>  =&gt; 80,
+        <span class="s">'response'</span> =&gt; <span class="s">'binary'</span>,
+    ],
+]);
+<span class="k">$body</span> = curl_exec(<span class="k">$ch</span>);
+if (curl_getinfo(<span class="k">$ch</span>, CURLINFO_RESPONSE_CODE) === 200) {
+    file_put_contents(<span class="s">'photo.min.jpg'</span>, <span class="k">$body</span>);
+} else {
+    <span class="k">$err</span> = json_decode(<span class="k">$body</span>, true)[<span class="s">'error'</span>];
+    echo <span class="k">$err</span>[<span class="s">'code'</span>] . <span class="s">': '</span> . <span class="k">$err</span>[<span class="s">'message'</span>];
+}</code></pre>
+<pre data-c="node" hidden><code><span class="k">import</span> fs <span class="k">from</span> <span class="s">'node:fs'</span>;
+<span class="k">const</span> form = <span class="k">new</span> FormData();
+form.append(<span class="s">'image'</span>, <span class="k">new</span> Blob([fs.readFileSync(<span class="s">'photo.png'</span>)]), <span class="s">'photo.png'</span>);
+form.append(<span class="s">'format'</span>, <span class="s">'webp'</span>);
+<span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">'https://seraf.ir/api/v1/optimize'</span>, {
+  method: <span class="s">'POST'</span>, body: form,
+  headers: { Authorization: <span class="s">`Bearer ${process.env.SERAF_KEY}`</span> },
+});
+<span class="k">const</span> json = <span class="k">await</span> res.json();
+<span class="k">if</span> (!json.ok) <span class="k">throw new</span> Error(json.error.code);
+console.log(json.data.saved_percent, json.data.download_url);</code></pre>
+<pre data-c="py" hidden><code><span class="k">import</span> os, time, requests
+
+<span class="k">def</span> optimize(path, **opts):
+    <span class="k">while</span> True:
+        <span class="k">with</span> open(path, <span class="s">'rb'</span>) <span class="k">as</span> f:
+            r = requests.post(<span class="s">'https://seraf.ir/api/v1/optimize'</span>,
+                headers={<span class="s">'Authorization'</span>: <span class="s">'Bearer '</span> + os.environ[<span class="s">'SERAF_KEY'</span>]},
+                files={<span class="s">'image'</span>: f}, data={**opts, <span class="s">'response'</span>: <span class="s">'binary'</span>})
+        <span class="k">if</span> r.status_code <span class="k">in</span> (429, 503):          <span class="c"># honour Retry-After</span>
+            time.sleep(int(r.headers.get(<span class="s">'Retry-After'</span>, 5)))
+            <span class="k">continue</span>
+        r.raise_for_status()
+        <span class="k">return</span> r.content, r.headers
+
+data, headers = optimize(<span class="s">'photo.jpg'</span>, quality=80, format=<span class="s">'webp'</span>)
+open(<span class="s">'photo.webp'</span>, <span class="s">'wb'</span>).write(data)</code></pre>
+  </section>
+
+  <section id="wordpress">
+    <h2>افزونهٔ وردپرس</h2>
+    <p>دانلود از <a href="https://seraf.ir/panel/plugin">پنل سراف ← افزونه وردپرس</a> (پس از ورود).</p>
+    <ol>
+      <li>افزونه را نصب و فعال کنید.</li>
+      <li>در «رسانه ← بهینه‌ساز سراف ← تنظیمات» کلید API را وارد کنید.</li>
+      <li>آپلودهای جدید خودکار در صف قرار می‌گیرند؛ کتابخانهٔ فعلی را با «بهینه‌سازی گروهی» پردازش کنید.</li>
+    </ol>
+    <div class="note">افزونه هیچ موتور فشرده‌سازی‌ای ندارد. هر فایل (تصویر اصلی و هر اندازهٔ بندانگشتی) جداگانه و پشت سر هم با کلید شما به <code>POST /v1/optimize</code> با <code>response=binary</code> فرستاده می‌شود، روی سرور سراف پردازش و مستقیم به سایت شما برگردانده می‌شود. بین درخواست‌ها مکث قابل تنظیم وجود دارد، <code>Retry-After</code> رعایت می‌شود و با خطای ۴۰۲ فرایند متوقف می‌شود.</div>
+  </section>
+
+  <section id="privacy">
+    <h2>حریم خصوصی و نگهداری فایل‌ها</h2>
+    <ul>
+      <li><b>حالت binary و نسخهٔ رایگان:</b> هیچ فایلی روی سرور نمی‌ماند؛ ورودی پس از پایان درخواست و خروجی بلافاصله پس از ارسال حذف می‌شود.</li>
+      <li><b>حالت json:</b> خروجی فقط تا اولین دانلود (حداکثر ۱۰ دقیقه) نگهداری و سپس حذف می‌شود.</li>
+      <li>برای گزارش مصرف فقط نام فایل، حجم‌ها، فرمت و زمان ثبت می‌شود.</li>
+    </ul>
+  </section>
+
+  <section id="tips">
+    <h2>توصیه‌ها</h2>
+    <ul>
+      <li>تصاویر را یکی‌یکی (یا با همزمانی کم) بفرستید.</li>
+      <li>همیشه به ۴۲۹ و ۵۰۳ با صبر به اندازهٔ <code>Retry-After</code> پاسخ دهید.</li>
+      <li>برای وب، <code>format=webp</code> با <code>quality</code> بین ۷۵ تا ۸۵ تعادل خوبی است؛ AVIF حجم کمتری دارد ولی کندتر است.</li>
+      <li><code>max_width=2560</code> حجم عکس‌های دوربین و موبایل را بسیار کم می‌کند.</li>
+      <li>پیش از پردازش انبوه، موجودی را با <code>GET /v1/account</code> بررسی کنید.</li>
+    </ul>
+  </section>
+
+  <footer>Seraf Image API v1 · <a href="https://seraf.ir">seraf.ir</a> · <a href="https://seraf.ir/panel/">پنل کاربری</a></footer>
+</main>
+</div>
+<script>
+document.querySelectorAll('.tabs button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    document.querySelectorAll('pre[data-c]').forEach(function (p) { p.hidden = p.getAttribute('data-c') !== b.getAttribute('data-t'); });
+  });
+});
+</script>
+</body>
+</html>

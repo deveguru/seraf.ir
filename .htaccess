@@ -1,0 +1,11 @@
+# Seraf
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Squoosh's in-app "/editor" route now lives under /compress/
+  RewriteRule ^editor/?$ /compress/ [R=302,L]
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|serviceworker\.js|sw\.js)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

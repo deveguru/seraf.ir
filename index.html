@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seraf — Image optimization API, WordPress plugin & free compressor</title>
+<meta name="description" content="Compress, resize and convert images to WebP/AVIF. Free batch optimizer, developer REST API and a WordPress plugin billed from a simple wallet.">
+<meta name="theme-color" content="#0a0b14">
+<link rel="icon" href="/seraficon.webp">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="/static/home.css?v=1.2.0">
+<script src="/static/home.js?v=1.2.0" defer></script>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="grid"></span></div>
+
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="logo" href="/"><img src="/seraficon.webp" alt="" width="34" height="34"><span>Seraf</span></a>
+    <nav class="links" id="links">
+      <a href="#optimizer" data-i18n="nav_tool">Free optimizer</a>
+      <a href="#features" data-i18n="nav_features">Features</a>
+      <a href="#api" data-i18n="nav_api">API</a>
+      <a href="#wordpress" data-i18n="nav_wp">WordPress</a>
+      <a href="#pricing" data-i18n="nav_pricing">Pricing</a>
+      <a href="/panel/docs" data-i18n="nav_docs">Docs</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="chip-btn" id="lang-toggle" type="button" aria-label="Language">فا</button>
+      <a class="btn btn-ghost hide-sm" href="/panel/docs" data-i18n="btn_docs">API docs</a>
+      <a class="btn btn-primary" href="/panel/login" id="account-btn" data-i18n="btn_login">Sign in</a>
+      <button class="burger" id="burger" type="button" aria-label="Menu"><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO + GUEST OPTIMIZER -->
+  <section class="hero wrap" id="optimizer">
+    <div class="hero-copy">
+      <span class="pill"><i class="dot"></i><span data-i18n="hero_pill">WebP · AVIF · JPEG · PNG — server-side, in seconds</span></span>
+      <h1><span data-i18n="hero_h1a">Lighter images.</span><br><span class="grad" data-i18n="hero_h1b">Faster websites.</span></h1>
+      <p class="lead" data-i18n="hero_lead">Drop up to 10 images and get them back optimized — free, no sign-up. Need more? Plug Seraf into your site with our REST API or WordPress plugin, and pay from a simple wallet.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="/panel/login" data-i18n="cta_start">Get your API key</a>
+        <a class="btn btn-ghost btn-lg" href="/panel/docs" data-i18n="cta_docs">Read the API docs</a>
+      </div>
+      <ul class="trust">
+        <li><b data-i18n="tn1">~80%</b> <span data-i18n="trust1">smaller on average</span></li>
+        <li><b data-i18n="tn2">4</b> <span data-i18n="trust2">output formats</span></li>
+        <li><b data-i18n="tn3">0</b> <span data-i18n="trust3">files stored for guests</span></li>
+      </ul>
+    </div>
+
+    <div class="tool glass" id="tool">
+      <div class="tool-head">
+        <div>
+          <h2 data-i18n="tool_title">Batch optimizer</h2>
+          <p class="muted small" id="tool-limits" data-i18n="tool_limits">Up to 10 images · 5 MB each · processed one by one</p>
+        </div>
+        <span class="badge" data-i18n="free">Free</span>
+      </div>
+
+      <label class="drop" id="drop">
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4" /><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" /></svg>
+        <strong data-i18n="drop_title">Drop images here or click to choose</strong>
+        <span class="muted small" data-i18n="drop_sub">JPEG, PNG, WebP, AVIF</span>
+      </label>
+
+      <div class="preview" id="preview" hidden>
+        <div class="cmp" id="cmp" dir="ltr">
+          <img id="cmp-before" alt="">
+          <div class="cmp-after" id="cmp-after-wrap"><img id="cmp-after" alt=""></div>
+          <div class="cmp-line" id="cmp-line"><span>⇆</span></div>
+          <input type="range" id="cmp-range" min="0" max="100" value="50" step="0.1" aria-label="Compare">
+          <span class="cmp-tag cmp-l" id="tag-before"></span>
+          <span class="cmp-tag cmp-r" id="tag-after"></span>
+          <div class="cmp-busy" id="cmp-busy" hidden><i></i></div>
+        </div>
+        <div class="cmp-info">
+          <span class="q-name" id="cmp-name"></span>
+          <span class="saving" id="cmp-saving"></span>
+        </div>
+      </div>
+
+      <div class="settings">
+        <label><span data-i18n="set_format">Output format</span>
+          <select id="opt-format">
+            <option value="original" data-i18n="fmt_original">Keep original</option>
+            <option value="webp">WebP</option>
+            <option value="avif">AVIF</option>
+            <option value="jpeg">JPEG</option>
+            <option value="png">PNG</option>
+          </select>
+        </label>
+        <label><span><span data-i18n="set_quality">Quality</span> <b id="q-val">80</b></span>
+          <input type="range" id="opt-quality" min="30" max="100" value="80">
+        </label>
+        <label><span data-i18n="set_width">Max width</span>
+          <select id="opt-width">
+            <option value="0" data-i18n="w_original">Original size</option>
+            <option value="3840">3840 px</option>
+            <option value="2560">2560 px</option>
+            <option value="1920">1920 px</option>
+            <option value="1280">1280 px</option>
+            <option value="800">800 px</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="overall" id="overall" hidden><span></span></div>
+      <ul class="queue" id="queue"></ul>
+
+      <div class="tool-foot">
+        <div class="summary muted small" id="summary"></div>
+        <div class="tool-actions">
+          <button class="btn btn-ghost btn-sm" id="clear-btn" type="button" hidden data-i18n="btn_clear">Clear</button>
+          <button class="btn btn-ghost btn-sm" id="run-btn" type="button" hidden data-i18n="btn_retry">Retry failed</button>
+          <button class="btn btn-success" id="zip-btn" type="button" hidden data-i18n="btn_zip">Download all (ZIP)</button>
+        </div>
+      </div>
+      <p class="notice small" id="tool-msg" hidden></p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section wrap" id="features">
+    <div class="section-head">
+      <span class="kicker" data-i18n="feat_kicker">Why Seraf</span>
+      <h2 data-i18n="feat_title">Everything you need to ship lighter images</h2>
+    </div>
+    <div class="cards">
+      <article class="card glass"><div class="ic">⚡</div><h3 data-i18n="f1_t">REST API</h3><p data-i18n="f1_d">One POST request: send a file or URL, get back an optimized image or a download link. Works from any language.</p></article>
+      <article class="card glass"><div class="ic">🧩</div><h3 data-i18n="f2_t">WordPress plugin</h3><p data-i18n="f2_d">Auto-optimizes new uploads in the background and bulk-processes your library one image at a time — gentle on your host.</p></article>
+      <article class="card glass"><div class="ic">🖼️</div><h3 data-i18n="f3_t">Modern formats</h3><p data-i18n="f3_d">Convert to WebP or AVIF, resize oversized photos, strip metadata and keep colour profiles intact.</p></article>
+      <article class="card glass"><div class="ic">👛</div><h3 data-i18n="f4_t">Wallet & plans</h3><p data-i18n="f4_d">Top up online, pay per image or buy a monthly plan. Images that can't be made smaller are never charged.</p></article>
+      <article class="card glass"><div class="ic">🛡️</div><h3 data-i18n="f5_t">Managed & fair</h3><p data-i18n="f5_d">Rate limits, queueing and Retry-After hints keep every request fast and reliable for everyone.</p></article>
+      <article class="card glass"><div class="ic">📱</div><h3 data-i18n="f6_t">Sign in with your phone</h3><p data-i18n="f6_d">No passwords to remember: sign in with an SMS code, create keys and track usage in a bilingual dashboard.</p></article>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="section wrap">
+    <div class="steps">
+      <div class="step"><span>1</span><h3 data-i18n="s1_t">Sign in</h3><p data-i18n="s1_d">Use your mobile number — your account is created instantly.</p></div>
+      <div class="step"><span>2</span><h3 data-i18n="s2_t">Top up or pick a plan</h3><p data-i18n="s2_d">Charge your wallet with any Iranian bank card.</p></div>
+      <div class="step"><span>3</span><h3 data-i18n="s3_t">Create an API key</h3><p data-i18n="s3_d">One key per site, optionally locked to your domain.</p></div>
+      <div class="step"><span>4</span><h3 data-i18n="s4_t">Optimize everything</h3><p data-i18n="s4_d">From code, from WordPress, or right here in the browser.</p></div>
+    </div>
+  </section>
+
+  <!-- API -->
+  <section class="section wrap split" id="api">
+    <div>
+      <span class="kicker" data-i18n="api_kicker">For developers</span>
+      <h2 data-i18n="api_title">A tiny API that does the heavy lifting</h2>
+      <p class="muted" data-i18n="api_text">Authenticate with a Bearer key, post an image and choose quality, format and size. Get JSON stats with a download link, or the optimized bytes straight back with response=binary.</p>
+      <ul class="checks">
+        <li data-i18n="api_c1">JSON or binary responses</li>
+        <li data-i18n="api_c2">Optimize by upload or by URL</li>
+        <li data-i18n="api_c3">Usage & balance endpoints</li>
+        <li data-i18n="api_c4">Clear errors with Retry-After</li>
+      </ul>
+      <div class="hero-cta"><a class="btn btn-primary" href="/panel/docs" data-i18n="btn_docs_full">Full documentation</a><a class="btn btn-ghost" href="/panel/keys" data-i18n="btn_key">Create a key</a></div>
+    </div>
+    <div class="code glass" dir="ltr">
+      <div class="tabs" role="tablist">
+        <button class="on" data-tab="curl" type="button">cURL</button>
+        <button data-tab="php" type="button">PHP</button>
+        <button data-tab="js" type="button">Node.js</button>
+      </div>
+<pre data-code="curl"><code><span class="c">#</span> <span class="c">optimize & convert to WebP</span>
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H <span class="s">"Authorization: Bearer $SERAF_KEY"</span> \
+  -F <span class="s">"image=@photo.jpg"</span> \
+  -F <span class="s">"format=webp"</span> -F <span class="s">"quality=80"</span></code></pre>
+<pre data-code="php" hidden><code><span class="k">$ch</span> = curl_init(<span class="s">'https://seraf.ir/api/v1/optimize'</span>);
+curl_setopt_array(<span class="k">$ch</span>, [
+  CURLOPT_POST =&gt; true,
+  CURLOPT_RETURNTRANSFER =&gt; true,
+  CURLOPT_HTTPHEADER =&gt; [<span class="s">'Authorization: Bearer '</span> . <span class="k">$key</span>],
+  CURLOPT_POSTFIELDS =&gt; [
+    <span class="s">'image'</span> =&gt; new CURLFile(<span class="s">'photo.jpg'</span>),
+    <span class="s">'response'</span> =&gt; <span class="s">'binary'</span>,
+  ],
+]);
+file_put_contents(<span class="s">'photo.min.jpg'</span>, curl_exec(<span class="k">$ch</span>));</code></pre>
+<pre data-code="js" hidden><code><span class="k">const</span> form = <span class="k">new</span> FormData();
+form.append(<span class="s">'image'</span>, <span class="k">new</span> Blob([fs.readFileSync(<span class="s">'photo.png'</span>)]), <span class="s">'photo.png'</span>);
+form.append(<span class="s">'format'</span>, <span class="s">'avif'</span>);
+<span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">'https://seraf.ir/api/v1/optimize'</span>, {
+  method: <span class="s">'POST'</span>, body: form,
+  headers: { Authorization: <span class="s">`Bearer ${process.env.SERAF_KEY}`</span> },
+});
+<span class="k">const</span> { data } = <span class="k">await</span> res.json(); <span class="c">// data.saved_percent, data.download_url</span></code></pre>
+    </div>
+  </section>
+
+  <!-- WORDPRESS -->
+  <section class="section wrap split rev" id="wordpress">
+    <div class="wp-visual glass" aria-hidden="true">
+      <div class="wp-bar"><i></i><i></i><i></i><span>Media › Seraf Optimizer</span></div>
+      <div class="wp-row"><span>hero-banner.jpg</span><em>−82%</em></div>
+      <div class="wp-row"><span>product-01.png</span><em>−71%</em></div>
+      <div class="wp-row"><span>team-photo.jpg</span><em>−64%</em></div>
+      <div class="wp-row dim"><span>logo.webp</span><em class="gray">✓</em></div>
+      <div class="wp-progress"><span style="width:72%"></span></div>
+    </div>
+    <div>
+      <span class="kicker" data-i18n="wp_kicker">WordPress</span>
+      <h2 data-i18n="wp_title">Your whole media library, optimized on autopilot</h2>
+      <p class="muted" data-i18n="wp_text">Install the plugin, paste your API key and you're done. New uploads are optimized in the background; existing images are processed one by one with a configurable pause, so your host never feels it.</p>
+      <ul class="checks">
+        <li data-i18n="wp_c1">Backups with one-click restore</li>
+        <li data-i18n="wp_c2">Optional WebP delivery</li>
+        <li data-i18n="wp_c3">Live balance & savings in wp-admin</li>
+        <li data-i18n="wp_c4">English & Persian interface</li>
+      </ul>
+      <div class="hero-cta"><a class="btn btn-primary" href="/panel/plugin" data-i18n="btn_plugin">Download the plugin</a></div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section wrap" id="pricing">
+    <div class="section-head">
+      <span class="kicker" data-i18n="price_kicker">Pricing</span>
+      <h2 data-i18n="price_title">Simple, prepaid, no surprises</h2>
+      <p class="muted" data-i18n="price_sub">Top up your wallet and pay per image, or save with a monthly plan.</p>
+    </div>
+    <div class="plans" id="plans"><div class="plan glass skeleton"></div><div class="plan glass skeleton"></div><div class="plan glass skeleton"></div></div>
+  </section>
+
+  <!-- EDITOR + CTA -->
+  <section class="section wrap">
+    <div class="cta glass">
+      <div>
+        <h2 data-i18n="cta_title">Ready to make your site lighter?</h2>
+        <p class="muted" data-i18n="cta_text">Create your account in seconds with your mobile number. Prefer fine-tuning a single image side by side? Try the advanced in-browser editor.</p>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="/panel/login" data-i18n="cta_signup">Create free account</a>
+        <a class="btn btn-ghost btn-lg" href="/compress/" data-i18n="cta_editor">Advanced editor</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="logo"><img src="/seraficon.webp" alt="" width="28" height="28"><span>Seraf</span></div>
+    <nav>
+      <a href="/panel/docs" data-i18n="nav_docs">Docs</a>
+      <a href="/panel/plugin" data-i18n="nav_wp">WordPress</a>
+      <a href="/compress/" data-i18n="cta_editor">Advanced editor</a>
+      <a href="/panel/login" data-i18n="btn_login">Sign in</a>
+    </nav>
+    <p class="muted small">© <span id="year">2026</span> Seraf</p>
+  </div>
+</footer>
+</body>
+</html>

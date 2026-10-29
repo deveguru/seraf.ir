@@ -1,0 +1,385 @@
+==============================================================================
+  مستندات وب‌سرویس سراف (Seraf Image API) — نسخهٔ v1
+  https://seraf.ir/api/v1
+==============================================================================
+
+فهرست
+  ۱. معرفی
+  ۲. شروع سریع
+  ۳. احراز هویت
+  ۴. هزینه و پرداخت
+  ۵. محدودیت‌ها
+  ۶. سرویس‌ها (Endpoints)
+       6.1  GET  /v1/status
+       6.2  GET  /v1/plans
+       6.3  GET  /v1/account
+       6.4  GET  /v1/usage
+       6.5  POST /v1/optimize
+       6.6  GET  /v1/download/{token}
+       6.7  POST /v1/guest/optimize
+  ۷. کدهای خطا
+  ۸. نمونه‌کد (cURL، PHP، Node.js، Python)
+  ۹. افزونهٔ وردپرس و نحوهٔ کار آن
+  ۱۰. حریم خصوصی و نگهداری فایل‌ها
+  ۱۱. توصیه‌ها
+
+
+------------------------------------------------------------------------------
+۱. معرفی
+------------------------------------------------------------------------------
+وب‌سرویس سراف تصاویر را روی سرورهای سراف فشرده، کوچک و تبدیل می‌کند.
+  - فرمت‌های ورودی: JPEG، PNG، WebP، GIF، AVIF
+  - فرمت‌های خروجی: original (همان فرمت)، jpeg، png، webp، avif
+  - موتور پردازش: Imagick (با جایگزین GD)
+  - هر درخواست با «کلید API» شخصی شما احراز هویت می‌شود و هزینهٔ آن از سهمیهٔ
+    پلن یا کیف پول شما کسر می‌شود.
+
+آدرس پایه (Base URL):
+  https://seraf.ir/api/v1
+
+قالب پاسخ‌ها: JSON با کدگذاری UTF-8، مگر وقتی خود فایل تصویر را درخواست کنید.
+  موفق:   { "ok": true,  "data": { ... } }
+  خطا:    { "ok": false, "error": { "code": "...", "message": "...", ... } }
+
+
+------------------------------------------------------------------------------
+۲. شروع سریع
+------------------------------------------------------------------------------
+  1) در https://seraf.ir/panel/ با شماره موبایل (کد پیامکی) یا نام کاربری و رمز وارد شوید.
+  2) کیف پول را از بخش «کیف پول» شارژ کنید یا از بخش «پلن‌ها» یک پلن بخرید.
+  3) در بخش «کلیدهای API» یک کلید بسازید (srf_...). کلید فقط یک‌بار نمایش داده می‌شود.
+  4) اولین درخواست:
+
+     curl -X POST https://seraf.ir/api/v1/optimize \
+       -H "Authorization: Bearer srf_YOUR_KEY" \
+       -F "image=@photo.jpg" -F "format=webp" -F "quality=80"
+
+
+------------------------------------------------------------------------------
+۳. احراز هویت
+------------------------------------------------------------------------------
+کلید را در یکی از هدرهای زیر بفرستید:
+
+  Authorization: Bearer srf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  X-API-Key: srf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+هدرهای اختیاری:
+  X-Seraf-Client: wordpress/1.0.0   نوع کلاینت (در گزارش مصرف نمایش داده می‌شود)
+  X-Seraf-Site:   example.com       دامنهٔ سایت شما
+
+محدودسازی به دامنه:
+  هنگام ساخت کلید می‌توانید آن را به یک دامنه محدود کنید. در این حالت دامنهٔ
+  ارسالی در X-Seraf-Site (یا Origin/Referer) باید همان دامنه یا زیر‌دامنهٔ آن باشد،
+  وگرنه خطای 403 domain_not_allowed برمی‌گردد.
+
+نکات امنیتی:
+  - کلید را در کد سمت مرورگر (JavaScript عمومی) قرار ندهید؛ از سمت سرور استفاده کنید.
+  - کلید لو رفته را از پنل «باطل» کنید و کلید تازه بسازید.
+  - سراف فقط هش (SHA-256) کلید را نگه می‌دارد.
+
+
+------------------------------------------------------------------------------
+۴. هزینه و پرداخت
+------------------------------------------------------------------------------
+  - واحد پول: تومان (IRT).
+  - هر تصویر بهینه‌شده یک واحد مصرف است.
+  - ترتیب کسر هزینه:
+      ۱) سهمیهٔ پلن فعالی که زودتر منقضی می‌شود
+      ۲) در غیر این صورت «پرداخت به ازای مصرف» از کیف پول (قیمت هر تصویر در /v1/plans)
+  - اگر تصویر کوچک‌تر نشود (status = "skipped") هزینه برگشت داده می‌شود.
+  - اگر پردازش با خطا تمام شود هزینه برگشت داده می‌شود.
+  - اگر نه سهمیه باشد و نه موجودی: خطای 402 insufficient_balance.
+
+
+------------------------------------------------------------------------------
+۵. محدودیت‌ها
+------------------------------------------------------------------------------
+  - تعداد درخواست در دقیقه: بر اساس پلن (بدون پلن معمولاً ۲۰ در دقیقه).
+      هدرهای پاسخ: X-RateLimit-Limit و X-RateLimit-Remaining
+      در صورت عبور: 429 rate_limited همراه هدر Retry-After (ثانیه)
+  - حداکثر حجم فایل: بر اساس پلن (بدون پلن معمولاً ۱۰ مگابایت) → 413 file_too_large
+  - حداکثر ابعاد: ۴۰ مگاپیکسل → 413 image_too_large
+  - تعداد پردازش همزمان کل سرور محدود است؛ در زمان شلوغی 503 server_busy
+    همراه Retry-After برمی‌گردد. چند ثانیه صبر کرده و همان درخواست را تکرار کنید.
+  - مقادیر دقیق محدودیت‌های حساب شما در GET /v1/account برگردانده می‌شود.
+
+
+------------------------------------------------------------------------------
+۶. سرویس‌ها
+------------------------------------------------------------------------------
+
+6.1  GET /v1/status                                   (عمومی، بدون کلید)
+     وضعیت سرویس و فرمت‌های قابل تولید.
+
+     پاسخ نمونه:
+     {
+       "ok": true,
+       "data": {
+         "version": "1.2.0",
+         "engine": "imagick",
+         "output_formats": ["jpeg", "png", "webp", "avif"],
+         "maintenance": false,
+         "time": "2026-10-30T10:00:00+00:00"
+       }
+     }
+
+6.2  GET /v1/plans                                    (عمومی، بدون کلید)
+     فهرست پلن‌های فعال، قیمت پرداخت به ازای مصرف و محدودیت‌های نسخهٔ رایگان.
+
+     پاسخ نمونه (خلاصه):
+     {
+       "ok": true,
+       "data": {
+         "plans": [
+           { "id": 2, "name_en": "Business", "name_fa": "بیزینس",
+             "price": 249000, "duration_days": 30, "image_quota": 10000,
+             "max_file_mb": 25, "rate_per_minute": 60, "max_api_keys": 10,
+             "featured": true }
+         ],
+         "pay_as_you_go": { "price_per_image": 50, "max_file_mb": 10, "rate_per_minute": 20 },
+         "guest": { "enabled": true, "max_batch": 10, "max_file_mb": 5, "per_hour": 100 },
+         "formats": ["jpeg", "png", "webp", "avif"],
+         "currency": "IRT"
+       }
+     }
+
+6.3  GET /v1/account                                  (کلید لازم)
+     موجودی کیف پول، پلن فعال و محدودیت‌های حساب.
+
+     پاسخ نمونه:
+     {
+       "ok": true,
+       "data": {
+         "user":   { "id": 12, "mobile": "09121234567", "name": "Ali" },
+         "wallet": { "balance": 150000, "currency": "IRT" },
+         "plan":   { "name": "Business", "quota_left": 8430, "expires_at": "2026-11-28T09:00:00+00:00" },
+         "pricing": { "pay_as_you_go_per_image": 50 },
+         "limits": { "requests_per_minute": 60, "max_file_mb": 25, "max_concurrent_jobs": 3 },
+         "topup_url": "https://seraf.ir/panel/wallet"
+       }
+     }
+
+6.4  GET /v1/usage?limit=50                           (کلید لازم)
+     آخرین پردازش‌ها (حداکثر ۲۰۰ ردیف).
+
+     هر ردیف: id, client, site, filename, in_format, out_format, in_bytes,
+              out_bytes, charged, charge_source (subscription|wallet|free|none),
+              status (ok|skipped|failed), error, created_at
+
+6.5  POST /v1/optimize                                (کلید لازم)
+     بهینه‌سازی یک تصویر.
+
+     ورودی: multipart/form-data (برای فایل) یا application/json / form (برای url)
+
+     پارامتر          اجباری   توضیح
+     ---------------  -------  ---------------------------------------------------
+     image            *        فایل تصویر (JPEG/PNG/WebP/GIF/AVIF)
+     url              *        یا: آدرس عمومی http(s) تصویر (به‌جای image)
+     quality          خیر      ۱ تا ۱۰۰؛ پیش‌فرض ۸۲. عدد کمتر = حجم کمتر
+     format           خیر      original (پیش‌فرض) | jpeg | png | webp | avif
+     max_width        خیر      حداکثر عرض (پیکسل)؛ فقط کوچک می‌کند، نسبت حفظ می‌شود
+     max_height       خیر      حداکثر ارتفاع (پیکسل)
+     keep_metadata    خیر      true برای حفظ EXIF؛ پیش‌فرض false (پروفایل رنگ حفظ می‌شود)
+     response         خیر      json (پیش‌فرض) | binary
+     (*) یکی از image یا url الزامی است.
+
+     الف) response=json  → پاسخ:
+     {
+       "ok": true,
+       "data": {
+         "id": 1024,
+         "status": "ok",
+         "input":  { "format": "jpeg", "bytes": 482113 },
+         "output": { "format": "webp", "mime": "image/webp", "bytes": 98314, "width": 1600, "height": 1067 },
+         "saved_bytes": 383799,
+         "saved_percent": 79.61,
+         "charged": 50,
+         "charge_source": "wallet",
+         "balance": 99950,
+         "download_url": "https://seraf.ir/api/v1/download/AbC123...",
+         "expires_at": "2026-10-30T10:10:00+00:00"
+       }
+     }
+     download_url یک‌بارمصرف است و حداکثر ۱۰ دقیقه اعتبار دارد.
+
+     ب) response=binary  → بدنهٔ پاسخ خودِ تصویر است و آمار در هدرها:
+        Content-Type:          image/webp
+        X-Seraf-Status:        ok | skipped
+        X-Seraf-Input-Bytes:   482113
+        X-Seraf-Output-Bytes:  98314
+        X-Seraf-Output-Format: webp
+        X-Seraf-Width:         1600
+        X-Seraf-Height:        1067
+        X-Seraf-Charged:       50
+        X-Seraf-Balance:       99950
+     این حالت برای افزونه‌ها و پردازش انبوه توصیه می‌شود (یک رفت‌وبرگشت، بدون ذخیره).
+
+     مقدار status:
+        ok       تصویر بهینه شد (کوچک‌تر شد، تبدیل شد یا تغییر اندازه داد)
+        skipped  تصویر از قبل بهینه بود؛ همان فایل اصلی برگردانده می‌شود و هزینه‌ای ندارد
+
+6.6  GET /v1/download/{token}                          (بدون کلید؛ توکن محرمانه)
+     دریافت فایل بهینه‌شده در حالت JSON. لینک یک‌بارمصرف است: پس از اولین دانلود
+     فایل از سرور حذف می‌شود؛ دانلود دوم → 404 not_found.
+
+6.7  POST /v1/guest/optimize                          (عمومی؛ مخصوص صفحهٔ اصلی)
+     بهینه‌ساز رایگان سایت برای کاربران مهمان. برای استفادهٔ برنامه‌نویسی از
+     /v1/optimize استفاده کنید.
+       - ورودی: image (multipart) + quality, format, max_width
+       - هدر اختیاری X-Seraf-Guest: شناسهٔ تصادفی مرورگر
+       - سقف: حجم ۵ مگابایت، ۱۰۰ تصویر در ساعت برای هر مرورگر (هر IP تا ۱۰ برابر)
+       - پاسخ: باینری با همان هدرهای X-Seraf-*
+       - عبور از سقف: 429 guest_limit
+
+
+------------------------------------------------------------------------------
+۷. کدهای خطا
+------------------------------------------------------------------------------
+HTTP  code                  معنی
+----  --------------------  ------------------------------------------------------
+400   upload_failed         آپلود فایل ناقص بود
+401   unauthorized          کلید ارسال نشده، نامعتبر یا باطل شده است
+402   insufficient_balance  موجودی و سهمیه کافی نیست (balance, price_per_image, topup_url)
+403   account_blocked       حساب کاربری غیرفعال شده است
+403   domain_not_allowed    کلید به دامنهٔ دیگری محدود شده است
+404   not_found             سرویس یا لینک دانلود وجود ندارد / منقضی شده
+405   method_not_allowed    متد HTTP اشتباه است
+413   file_too_large        حجم فایل بیش از سقف پلن است
+413   image_too_large       ابعاد تصویر بیش از ۴۰ مگاپیکسل است
+415   invalid_image         فایل تصویر معتبر نیست
+415   unsupported_type      نوع تصویر پشتیبانی نمی‌شود
+422   no_input              نه image ارسال شده نه url
+422   invalid_url           آدرس نامعتبر یا خصوصی است (فقط http/https عمومی)
+422   fetch_failed          دانلود تصویر از url ممکن نشد
+422   invalid_format        مقدار format نامعتبر است
+422   format_unavailable    این فرمت خروجی روی سرور فعال نیست
+422   decode_failed         تصویر قابل خواندن نیست
+422   processing_failed     پردازش با خطا مواجه شد (هزینه برگشت داده شد)
+429   rate_limited          درخواست بیش از حد مجاز در دقیقه (retry_after)
+429   guest_limit           سقف ساعتی نسخهٔ رایگان (retry_after)
+500   server_error          خطای داخلی
+503   server_busy           سرور مشغول است؛ پس از retry_after ثانیه تکرار کنید
+503   maintenance           سرویس در حال به‌روزرسانی است
+
+نمونه:
+  HTTP/1.1 429 Too Many Requests
+  Retry-After: 12
+  { "ok": false, "error": { "code": "rate_limited", "message": "Too many requests, slow down", "retry_after": 12 } }
+
+
+------------------------------------------------------------------------------
+۸. نمونه‌کد
+------------------------------------------------------------------------------
+
+--- cURL (JSON) ---
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H "Authorization: Bearer $SERAF_KEY" \
+  -F "image=@photo.jpg" -F "quality=80" -F "format=webp"
+
+--- cURL (binary، ذخیرهٔ مستقیم) ---
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H "Authorization: Bearer $SERAF_KEY" \
+  -F "image=@photo.png" -F "response=binary" \
+  -D headers.txt -o photo.min.png
+
+--- cURL (با آدرس) ---
+curl -X POST https://seraf.ir/api/v1/optimize \
+  -H "Authorization: Bearer $SERAF_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/banner.jpg","format":"avif","max_width":1920}'
+
+--- PHP ---
+<?php
+$ch = curl_init('https://seraf.ir/api/v1/optimize');
+curl_setopt_array($ch, [
+    CURLOPT_POST           => true,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HEADER         => false,
+    CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . getenv('SERAF_KEY')],
+    CURLOPT_POSTFIELDS     => [
+        'image'    => new CURLFile('photo.jpg'),
+        'quality'  => 80,
+        'response' => 'binary',
+    ],
+]);
+$body = curl_exec($ch);
+$code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+if ($code === 200) {
+    file_put_contents('photo.min.jpg', $body);
+} else {
+    $err = json_decode($body, true)['error'];
+    echo $err['code'] . ': ' . $err['message'];
+}
+
+--- Node.js (18+) ---
+import fs from 'node:fs';
+const form = new FormData();
+form.append('image', new Blob([fs.readFileSync('photo.png')]), 'photo.png');
+form.append('format', 'webp');
+const res = await fetch('https://seraf.ir/api/v1/optimize', {
+  method: 'POST',
+  headers: { Authorization: `Bearer ${process.env.SERAF_KEY}` },
+  body: form,
+});
+const json = await res.json();
+if (!json.ok) throw new Error(json.error.code);
+console.log(json.data.saved_percent, json.data.download_url);
+
+--- Python (requests) ---
+import os, time, requests
+def optimize(path, **opts):
+    while True:
+        with open(path, 'rb') as f:
+            r = requests.post('https://seraf.ir/api/v1/optimize',
+                              headers={'Authorization': 'Bearer ' + os.environ['SERAF_KEY']},
+                              files={'image': f}, data={**opts, 'response': 'binary'})
+        if r.status_code in (429, 503):
+            time.sleep(int(r.headers.get('Retry-After', 5)))
+            continue
+        r.raise_for_status()
+        return r.content, r.headers
+data, headers = optimize('photo.jpg', quality=80, format='webp')
+open('photo.webp', 'wb').write(data)
+
+
+------------------------------------------------------------------------------
+۹. افزونهٔ وردپرس
+------------------------------------------------------------------------------
+دانلود: https://seraf.ir/panel/plugin (پس از ورود)
+
+  1) افزونه را در وردپرس نصب و فعال کنید.
+  2) در «رسانه ← بهینه‌ساز سراف ← تنظیمات» کلید API را وارد کنید.
+  3) آپلودهای جدید به‌صورت خودکار در صف قرار می‌گیرند؛ کتابخانهٔ فعلی را با
+     «بهینه‌سازی گروهی» پردازش کنید.
+
+نحوهٔ کار:
+  - افزونه هیچ موتور فشرده‌سازی‌ای ندارد؛ هر فایل (تصویر اصلی و هر اندازهٔ
+    بندانگشتی) جداگانه و پشت سر هم با کلید شما به POST /v1/optimize با
+    response=binary فرستاده می‌شود، روی سرور سراف پردازش می‌شود و نتیجه
+    مستقیم به سایت شما برمی‌گردد.
+  - بین درخواست‌ها مکث قابل تنظیم وجود دارد و Retry-After رعایت می‌شود؛
+    با خطای 402 فرایند متوقف و پیام شارژ کیف پول نمایش داده می‌شود.
+  - از نسخهٔ اصلی پشتیبان گرفته می‌شود و با یک کلیک قابل بازگردانی است.
+  - هر فایلی که کوچک‌تر شود یک تصویر حساب می‌شود.
+
+
+------------------------------------------------------------------------------
+۱۰. حریم خصوصی و نگهداری فایل‌ها
+------------------------------------------------------------------------------
+  - حالت binary و نسخهٔ رایگان: هیچ فایلی روی سرور سراف نمی‌ماند؛ فایل ورودی
+    پس از پایان درخواست و فایل خروجی بلافاصله پس از ارسال حذف می‌شود.
+  - حالت json: فایل خروجی فقط تا اولین دانلود (حداکثر ۱۰ دقیقه) نگهداری و سپس حذف می‌شود.
+  - برای گزارش مصرف فقط نام فایل، حجم‌ها، فرمت و زمان ثبت می‌شود.
+
+
+------------------------------------------------------------------------------
+۱۱. توصیه‌ها
+------------------------------------------------------------------------------
+  - تصاویر را یکی‌یکی (یا با همزمانی کم) بفرستید؛ پردازش موازی سنگین سریع‌تر نیست.
+  - همیشه به 429/503 با صبر به اندازهٔ Retry-After پاسخ دهید.
+  - برای وب، format=webp و quality بین ۷۵ تا ۸۵ تعادل خوبی است؛ AVIF حجم کمتری
+    دارد ولی پردازش آن کندتر است.
+  - max_width=2560 برای عکس‌های دوربین/موبایل حجم را بسیار کم می‌کند.
+  - پیش از پردازش انبوه، موجودی را با GET /v1/account بررسی کنید.
+
+پشتیبانی و پنل: https://seraf.ir/panel/
